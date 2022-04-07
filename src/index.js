@@ -1,29 +1,82 @@
-import './style.css';
+import Score from './score.js';
 
-const personData = [
-  { name: 'regiss', age: 31},
-  { name: 'allain', age: 30 },
-  { name: 'papa', age: 70 },
-  { name: 'Lualua', age: 210 },
-  { name: 'Just', age: 210 },
-  { name: 'Franc', age: 210 },
-  { name: 'Gigi', age: 210 },
-];
+import('./style.css');
+const url = 'https://us-central1-js-capstone-backend.cloudfunctions.net/api/games/';
 
-function loadTableData(personData) {
-  const tableBody = document.getElementById('tableData');
-  // const table = document.createElement('div');
-  let dataHtml = '';
+class Game {
+  static displayScore = (userInfo) => {
+    const ul = document.querySelector('.board-items');
+    const li = document.createElement('li');
+    li.innerHTML = `
+    <span>${userInfo.user}  </span><span>${userInfo.score}</span>
+    `;
+    ul.appendChild(li);
+  };
 
-  // eslint-disable-next-line no-restricted-syntax
-  for (const person of personData) {
-    dataHtml += `<tr><td>${person.name}</td><td>${person.age}</td></tr>`;
-  }
-  tableBody.innerHTML = dataHtml;
+  static addScore = (e) => {
+    e.preventDefault();
+    const user = document.querySelector('#name').value;
+    const score = document.querySelector('#score').value;
+
+    if (user && score) {
+      const data = new Score(user, score);
+      Game.createScore(`${url}Hy0s8hYWKe0O35hV54Fp/scores/`, data).then(
+        (res) => {
+          const message = document.querySelector('.message');
+          if (res) {
+            message.style.display = 'flex';
+            message.innerHTML = `
+        <div class="close"><i class="fas fa-close"></i></div>
+        <span class="text">${res.result}</span> `;
+
+            setTimeout(() => {
+              message.style.display = 'none';
+            }, 2000);
+          } else {
+            message.style.display = 'none';
+          }
+          document
+            .querySelector('.message .close')
+            .addEventListener('click', () => {
+              message.style.display = 'none';
+            });
+        },
+      );
+
+      Game.clearInputs();
+    }
+  };
+
+  static refreshScore = () => {
+    fetch(`${url}Hy0s8hYWKe0O35hV54Fp/scores/`)
+      .then((res) => res.json())
+      .then((data) => {
+        const ul = document.querySelector('.board-items');
+        ul.replaceChildren();
+        data.result.forEach((score) => Game.displayScore(score));
+      });
+  };
+
+  static createScore = async (url = '', data = {}) => {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  };
+
+  static clearInputs = () => {
+    document.querySelector('#name').value = '';
+    document.querySelector('#score').value = '';
+  };
 }
 
-window.onload = () => {
-  loadTableData(personData);
-};
+document.querySelector('#refresh').addEventListener('click', Game.refreshScore);
 
-loadTableData(personData);
+document
+  .querySelector('#form-container')
+  .addEventListener('submit', Game.addScore);
+document.addEventListener('DOMContentLoaded', Game.refreshScore);
