@@ -5,10 +5,10 @@ const url = 'https://us-central1-js-capstone-backend.cloudfunctions.net/api/game
 
 class Game {
   static displayScore = (userInfo) => {
-    const ul = document.querySelector('.board-items');
-    const li = document.createElement('li');
+    const ul = document.getElementById('tableData');
+    const li = document.createElement('tr');
     li.innerHTML = `
-    <span>${userInfo.user}  </span><span>${userInfo.score}</span>
+    <td>${userInfo.user}</td><td>${userInfo.score}</td>
     `;
     ul.appendChild(li);
   };
@@ -51,7 +51,7 @@ class Game {
     fetch(`${url}Hy0s8hYWKe0O35hV54Fp/scores/`)
       .then((res) => res.json())
       .then((data) => {
-        const ul = document.querySelector('.board-items');
+        const ul = document.querySelector('#tableData');
         ul.replaceChildren();
         data.result.forEach((score) => Game.displayScore(score));
       });
