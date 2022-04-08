@@ -1,4 +1,4 @@
-import Score from './score.js';
+import Score from './modules/score.js';
 
 import('./style.css');
 const url = 'https://us-central1-js-capstone-backend.cloudfunctions.net/api/games/';
@@ -43,7 +43,8 @@ class Game {
         },
       );
 
-      Game.clearInputs();
+      document.querySelector('#name').value = '';
+      document.querySelector('#score').value = '';
     }
   };
 
@@ -66,11 +67,6 @@ class Game {
       body: JSON.stringify(data),
     });
     return response.json();
-  };
-
-  static clearInputs = () => {
-    document.querySelector('#name').value = '';
-    document.querySelector('#score').value = '';
   };
 }
 
